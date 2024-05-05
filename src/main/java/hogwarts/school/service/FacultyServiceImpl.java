@@ -2,6 +2,7 @@ package hogwarts.school.service;
 
 import hogwarts.school.exception.EntityNotFoundException;
 import hogwarts.school.model.Faculty;
+import hogwarts.school.repository.FacultyRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.Collection;
@@ -12,58 +13,48 @@ import java.util.stream.Collectors;
 @Service
 public class FacultyServiceImpl implements FacultyService {
 
-    private final Map<Long, Faculty> faculties = new HashMap<>();
+    private final FacultyRepository facultyRepository;
 
-    private static Long idCounter = 1L;
+    public FacultyServiceImpl(FacultyRepository facultyRepository) {
+        this.facultyRepository = facultyRepository;
+    }
 
 
     @Override
     public Faculty add(Faculty faculty) {
-        faculties.put(idCounter++, faculty);
-        return faculty;
+        return facultyRepository.save(faculty);
     }
 
     @Override
     public Faculty get(Long id) {
-        if(faculties.containsKey(id)) {
-            return faculties.get(id);
-        }
-
-        throw new EntityNotFoundException();
+        return facultyRepository.findById(id).orElseThrow(EntityNotFoundException::new);
 
     }
 
     @Override
     public Faculty remove(Long id) {
-        if (faculties.containsKey(id)) {
-            return faculties.remove(id);
-        }
-
-        throw new EntityNotFoundException();
+        Faculty faculty = get(id);
+        facultyRepository.deleteById(id);
+        return faculty;
     }
-
 
 
     @Override
     public Faculty update(Faculty faculty) {
-        if(faculties.containsKey(faculty.getId())) {
-            return faculties.put(faculty.getId(), faculty);
-        }
-
-        throw new EntityNotFoundException();
+        return facultyRepository.save(faculty);
     }
 
     @Override
     public Collection<Faculty> getByColor(String color) {
-        return faculties.values().stream()
+        return getAll().stream()
                 .filter(s -> s.getColor().equals(color))
                 .collect(Collectors.toList());
     }
 
 
-
     @Override
     public Collection<Faculty> getAll() {
-        return faculties.values();
+        return facultyRepository.findAll();
     }
 }
+
