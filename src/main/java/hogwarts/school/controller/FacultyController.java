@@ -40,7 +40,7 @@ public class FacultyController {
     @Operation(summary = "Удаление факультета")
     public ResponseEntity<Faculty> remove(@PathVariable Long id) {
         Faculty deletedFaculty = service.remove(id);
-        return ResponseEntity.ok(deletedFaculty) ;
+        return ResponseEntity.ok(deletedFaculty);
     }
 
 
