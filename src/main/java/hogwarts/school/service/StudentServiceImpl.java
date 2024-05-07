@@ -1,7 +1,9 @@
 package hogwarts.school.service;
 
 import hogwarts.school.exception.EntityNotFoundException;
+import hogwarts.school.model.Faculty;
 import hogwarts.school.model.Student;
+import hogwarts.school.repository.StudentRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.Collection;
@@ -12,54 +14,47 @@ import java.util.stream.Collectors;
 @Service
 public class StudentServiceImpl implements StudentService {
 
-    private final Map<Long, Student> students = new HashMap<>();
+    private StudentRepository studentRepository;
 
-    private static Long idCounter = 1L;
-
+    public StudentServiceImpl(StudentRepository studentRepository) {
+        this.studentRepository = studentRepository;
+    }
 
     @Override
     public Student add(Student student) {
-        students.put(idCounter++, student);
-        return student;
+        return studentRepository.save(student);
     }
 
     @Override
     public Student get(Long id) {
-        if(students.containsKey(id)) {
-            return students.get(id);
-        }
-
-        throw new EntityNotFoundException();
+        return studentRepository.findById(id).orElseThrow(EntityNotFoundException::new);
 
     }
 
     @Override
     public Student remove(Long id) {
-        if ( students.containsKey(id)) {
-            return students.remove(id);
-        }
-
-        throw new EntityNotFoundException();
+        Student student = get(id);
+        studentRepository.deleteById(id);
+        return student;
     }
 
     @Override
     public Student update(Student student) {
-        if(students.containsKey(student.getId())) {
-            return students.put(student.getId(), student);
-        }
-
-        throw new EntityNotFoundException();
+        return studentRepository.save(student);
     }
 
     @Override
-    public Collection<Student> getByAge(Integer age) {
-        return students.values().stream()
-                .filter(s -> s.getAge().equals(age))
-                .collect(Collectors.toList());
+    public Collection<Student> getByAge(Integer startAge, Integer endAge) {
+        return studentRepository.findByAgeBetween(startAge, endAge);
     }
 
     @Override
     public Collection<Student> getAll() {
-        return students.values();
+        return studentRepository.findAll();
+    }
+
+    @Override
+    public Faculty getFacultyOfStudent(Long studentId) {
+        return get(studentId).getFaculty();
     }
 }

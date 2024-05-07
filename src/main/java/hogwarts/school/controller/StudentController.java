@@ -1,5 +1,6 @@
 package hogwarts.school.controller;
 
+import hogwarts.school.model.Faculty;
 import hogwarts.school.model.Student;
 import hogwarts.school.service.StudentService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -54,8 +55,8 @@ public class StudentController {
 
     @GetMapping("by-age")
     @Operation(summary = "Получение студента по возрасту")
-    public ResponseEntity<Collection<Student>> getByAge(@RequestParam Integer age) {
-        Collection<Student> students = service.getByAge(age);
+    public ResponseEntity<Collection<Student>> getByAge(@RequestParam Integer startAge, @RequestParam Integer endAge) {
+        Collection<Student> students = service.getByAge(startAge, endAge);
         return ResponseEntity.ok(students);
     }
 
@@ -65,6 +66,13 @@ public class StudentController {
     public ResponseEntity<Collection<Student>> getAll() {
         Collection<Student> students = service.getAll();
         return ResponseEntity.ok(students);
+    }
+
+    @GetMapping("faculty/{studentId}")
+    @Operation(summary = "Получение факультета студента по id")
+    public ResponseEntity<Faculty> getFacultyOfStudent(@PathVariable Long studentId) {
+        Faculty faculty = service.getFacultyOfStudent(studentId);
+        return ResponseEntity.ok(faculty);
     }
 
 }
